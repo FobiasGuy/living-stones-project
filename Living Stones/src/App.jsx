@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Search, ShoppingCart, User, Package, MessageSquare, Home as HomeIcon,
   ShoppingBag, Plus, Minus, X, Check, Pencil, Trash2, LogOut, Settings as SettingsIcon,
-  Users, FileText, BarChart3, Clock, ChevronRight, ChevronLeft, ArrowLeft, ShieldCheck,
+  Users, FileText, BarChart3, Clock, ChevronRight, ChevronLeft, ArrowLeft, ShieldCheck, PiggyBank,
   Image as ImageIcon, Eye, EyeOff, AlertCircle, Loader2
 } from "lucide-react";
 import { supabase, usernameToEmail } from "./lib/supabaseClient";
@@ -789,25 +789,47 @@ function MyOrdersView({ currentUser, orders, onOpenAuth }) {
    ------------------------------------------------------------------------- */
 
 function AdminDashboard({ orders, requests, products, users }) {
+  const orderList = Object.values(orders);
+  const paidOrders = orderList.filter((o) => o.paymentStatus === "Payment Received");
+  const totalRaised = paidOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+
   const stats = [
-    { label: "Orders", value: Object.keys(orders).length, icon: Package },
-    { label: "Pending payments", value: Object.values(orders).filter((o) => o.paymentStatus === "Payment Pending").length, icon: Clock },
+    { label: "Orders", value: orderList.length, icon: Package },
+    { label: "Pending payments", value: orderList.filter((o) => o.paymentStatus === "Payment Pending").length, icon: Clock },
     { label: "Open requests", value: Object.values(requests).filter((r) => !["Completed", "Rejected"].includes(r.status)).length, icon: MessageSquare },
     { label: "Products", value: Object.keys(products).length, icon: ShoppingBag },
     { label: "Customers", value: Object.values(users).filter((u) => u.role === "customer").length, icon: Users },
   ];
+
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      {stats.map((s) => (
-        <div key={s.label} className="rounded-2xl border border-stone-200 bg-white p-4">
-          <s.icon size={16} className="mb-2 text-stone-400" />
-          <p className="ls-display text-2xl font-bold text-stone-800">{s.value}</p>
-          <p className="ls-body text-xs text-stone-500">{s.label}</p>
+    <div className="space-y-4">
+      {/* Money counter — admin dashboard only, never rendered anywhere in the
+          customer-facing views. Counts orders marked "Payment Received" only,
+          since that's money actually in hand rather than just placed. */}
+      <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(135deg, #7C9885 0%, #8FA593 100%)" }}>
+        <div className="flex items-center gap-2 opacity-90">
+          <PiggyBank size={16} />
+          <span className="ls-body text-xs font-medium uppercase tracking-wide">Total raised</span>
         </div>
-      ))}
+        <p className="ls-display mt-1 text-3xl font-bold">{formatMoney(totalRaised)}</p>
+        <p className="ls-body mt-1 text-xs opacity-80">
+          from {paidOrders.length} paid order{paidOrders.length !== 1 ? "s" : ""}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-2xl border border-stone-200 bg-white p-4">
+            <s.icon size={16} className="mb-2 text-stone-400" />
+            <p className="ls-display text-2xl font-bold text-stone-800">{s.value}</p>
+            <p className="ls-body text-xs text-stone-500">{s.label}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
+
 
 function AdminProducts({ products, onSave, onDelete }) {
   const [editing, setEditing] = useState(null);
