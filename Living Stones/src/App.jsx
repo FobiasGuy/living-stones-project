@@ -28,9 +28,9 @@ const PAYMENT_STATUSES = ["Payment Pending", "Payment Received", "Payment Cancel
 const REQUEST_STATUSES = ["Submitted", "Reviewing", "Discussing", "Approved", "In Production", "Ready", "Completed", "Rejected"];
 // Edit this list to match your school's actual class names.
 const CLASS_OPTIONS = [
-  "7A", "7B", "7C", "7D", "7E",
-  "8A", "8B", "8C", "8D", "8E",
-  "9A", "9B", "9C", "9D", "9E",
+  "7A", "7B", "7C", "7D", "7E", "7F",
+  "8A", "8B", "8C", "8D", "8E", "8F",
+  "9A", "9B", "9C", "9D", "9E", "9F",
 ];
 const PAYMENT_METHODS = ["Cash", "Transfer"];
 const CHIP_COLORS = [
